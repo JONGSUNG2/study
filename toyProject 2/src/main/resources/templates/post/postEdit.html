@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>글 수정</title>
+    <style>
+        body { font-family: sans-serif; max-width: 700px; margin: 40px auto; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        form { display: flex; flex-direction: column; gap: 16px; }
+        input, textarea, button {
+            padding: 12px; font-size: 16px;
+            border: 1px solid #ccc; border-radius: 6px;
+        }
+        button {
+            background-color: #f39c12; color: white; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>🛠 게시글 수정</h1>
+<form th:action="@{/post/update/{postId}(postId = ${postId})}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id" th:value="${postId}" />
+    <input type="text" name="postTitle" th:value="${postUpdateDTO.postTitle}" required />
+    <textarea name="postContent" rows="10" th:text="${postUpdateDTO.postContent}" required></textarea>
+    <div th:if="${postUpdateDTO.fileSavedNames} != null" th:each="fileSavedname, iterStat : ${postUpdateDTO.fileSavedNames}">
+
+        <div th:attr="id='img-box-' + ${iterStat.index}" class="img-box">
+            <img th:src="@{'/postFiles/' + ${fileSavedname}}"
+                 th:attr="data-name=${fileSavedname}" alt="포스트 업데이트 이미지" width="200">
+
+            <button type="button" th:onclick="'markAsDeleted(' + ${iterStat.index} + ')'" style="margin-left: 10px;">삭제</button>
+
+            <span th:id="'badge-' + ${iterStat.index}" style="color: red; display: none;">삭제 예정</span>
+        </div>
+    </div>
+
+
+    <input type="file" name="files" multiple />
+    <button type="button" th:onclick="savePost()">수정 완료</button>
+
+    <script th:inline="javascript">
+        const deletedImageNames = [];
+        let postId = [[${postId}]];
+
+
+        function markAsDeleted(index){
+            const box = document.getElementById('img-box-' + index);
+            const img = box.querySelector('img');
+            const fileName = img.dataset.name;
+            const badge = document.getElementById('badge-' + index);
+
+            const idxInDeleted = deletedImageNames.indexOf(fileName);
+
+            //삭제 목록에 표시
+            if (idxInDeleted === -1){
+                //삭제 상태로 변경
+                img.style.opacity = '0.3';
+                badge.style.display = 'inline';
+                deletedImageNames.push(fileName);
+            }else{
+                //삭제 취소 상태로 변경
+                img.style.opacity = '1';
+                badge.style.display = 'none';
+                deletedImageNames.splice(idxInDeleted, 1);
+            }
+
+
+            console.log('삭제될 이미지 목록:', deletedImageNames);
+        }
+
+        //저장 버튼 클릭 시 예시
+        function savePost(){
+            const formData = new FormData();
+            formData.append("deletedImages", JSON.stringify(deletedImageNames));
+
+            //나머지 폼 데이터들도 같이 append
+            const title = document.querySelector('input[name="postTitle"]').value;
+            const content = document.querySelector('textarea[name="postContent"]').value;
+            const files = document.querySelector('input[name="files"]').files;
+
+            formData.append("postTitle", title);
+            formData.append("postContent", content);
+
+            //여러 파일 추가
+            for(let i = 0; i < files.length; i++){
+                formData.append("files", files[i]);
+            }
+
+
+            fetch(`/post/update/${postId}`, {
+                method: "POST",
+                body: formData
+            }).then(res => {
+                if (res.ok) {
+                    alert("저장 완료");
+                    window.location.href=`/post/postDetail/${postId}`;
+                }else{
+                    alert("저장 실패");
+                }
+            });
+        }
+    </script>
+</form>
+</body>
+</html>

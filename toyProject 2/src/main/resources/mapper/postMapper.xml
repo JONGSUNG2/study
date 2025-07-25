@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.toyProject.mapper.PostMapper">
+    <insert id="insertPost" parameterType="com.project.toyProject.domain.vo.PostVO"
+                            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO TBL_POST(
+                             POST_TITLE,POST_CONTENT,POST_REGISTER_DATE,MEMBER_ID, POST_READ_COUNT
+        ) values (
+                  #{postTitle}, #{postContent}, #{postRegisterDate}, #{memberId}, 0
+                         )
+    </insert>
+
+    <select id = "selectPostDetail">
+        SELECT P.POST_TITLE AS postTitle,
+               M.MEMBER_NAME AS memberName,
+               P.POST_REGISTER_DATE AS postRegisterDate,
+               P.POST_UPDATE_DATE AS postUpdateDate,
+               P.POST_CONTENT AS postContent,
+               P.POST_READ_COUNT AS postReadCount
+        FROM TBL_POST P
+        INNER JOIN TBL_MEMBER M on P.MEMBER_ID = M.ID
+        WHERE p.ID = #{postId}
+    </select>
+
+    <select id="selectPostFiles">
+        SELECT FILE_SAVED_NAME
+        from TBL_FILE
+        where FILE_TYPE = 'POST' AND REFERENCE_ID = #{postId}
+    </select>
+
+
+
+    <select id="selectPostList" resultType="com.project.toyProject.domain.dto.post.PostListDTO">
+        SELECT p.ID,
+               p.POST_TITLE,
+               p.POST_READ_COUNT,
+               p.POST_REGISTER_DATE,
+               p.POST_UPDATE_DATE,
+               m.MEMBER_NAME
+        From TBL_POST p
+        join TBL_MEMBER m on p.MEMBER_ID = m.ID
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countPost">
+        SELECT COUNT(*)
+        FROM TBL_POST
+    </select>
+
+    <update id="countReadPost">
+        UPDATE TBL_POST
+        SET POST_READ_COUNT = POST_READ_COUNT + 1
+        WHERE ID=#{postId}
+    </update>
+
+
+
+</mapper>

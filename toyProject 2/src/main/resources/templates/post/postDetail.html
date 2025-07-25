@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 제목</title>
+    <style>
+
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #f9f9f9;
+        }
+
+        .post-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 30px;
+        }
+
+        .post-header {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .post-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .post-meta {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .post-content {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .post-file {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .post-file img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .post-footer {
+            font-size: 14px;
+            color: #666;
+        }
+
+        #likeForm {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        #likeBtn {
+            background-color: #fddede;
+            border: 1px solid #e74c3c;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #e74c3c;
+            cursor: pointer;
+        }
+
+        #likeBtn:hover {
+            background-color: #ffecec;
+        }
+
+        /* 댓글 영역 */
+        .comment-section {
+            margin-top: 40px;
+        }
+
+        .comment-form {
+            background-color: #f0f0f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            resize: vertical;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .comment-form button {
+            background-color: #3498db;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .comment-form button:hover {
+            background-color: #2980b9;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .comment {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .comment strong {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-right: 10px;
+        }
+
+        .comment small {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .comment span {
+            display: block;
+            margin-top: 8px;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .back-button {
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+        }
+    </style>
+
+
+</head>
+<body>
+<div class="post-container">
+    <div class="post-header">
+        <div class="post-title" th:text="${postDetail.postTitle}">제목</div>
+        <div class="post-meta">
+            작성자: <span th:text="${postDetail.memberName}">홍길동</span> |
+            작성일: <span th:text="${#temporals.format(postDetail.postRegisterDate, 'yyyy-MM-dd HH:mm')}">2025-06-29</span> |
+            수정일: <span th:text="${#temporals.format(postDetail.postUpdateDate, 'yyyy-MM-dd HH:mm')}">2025-06-29</span>
+        </div>
+    </div>
+
+    <div class="post-content" th:text="${postDetail.postContent}">
+        게시글 내용입니다.
+    </div>
+
+<!--    post Detail에 이미지 여러개 어떻게 포이치로 받아올건지-->
+
+    <div th:each="fileSavedName : ${postDetail.fileSavedNames}" th:if="${postDetail.fileSavedNames != null}" class="post-file">
+        <img th:src="@{'/postFiles/' + ${fileSavedName}}" alt="포스트 이미지">
+<!--        첨부파일:-->
+<!--        <a th:href="@{'/postFiles/' + ${postDetail.fileOriginalName}}"-->
+<!--           th:text="${postDetail.fileOriginalName}"></a>-->
+    </div>
+
+    <div class="post-footer">
+        <div>
+            조회수: <span th:text="${postDetail.postReadCount}">0</span>
+        </div>
+
+
+        <form id="likeForm" th:action="@{/postLike}" method="post">
+        <input type="hidden" name="postId" th:value="${postId}" />
+        <button type="submit" id="likeBtn">❤️ 좋아요 (<span th:id="like-count">0</span>)</button>
+        </form>
+
+
+        <script th:inline="javascript">
+
+            fetch(`/postLike/countLike/[[${postId}]]`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('like-count').innerText = data.likeCount;
+                });
+
+        </script>
+
+        <script>
+            document.getElementById('likeForm').addEventListener('submit', async function(e){
+                e.preventDefault(); //기본 제출 막기
+
+                const formData = new FormData(this);
+
+                const res = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok){
+                    const data = await res.json(); // 응답 JSON 받기 (likeCount 예상)
+
+                    //DOM에 반영
+                    document.getElementById('like-count').innerText = data.likeCount;
+                }else{
+                    alert("좋아요 실패!");
+                }
+            });
+        </script>
+
+
+        <hr />
+
+        <h2>💬 댓글</h2>
+
+        <!-- 댓글 리스트 -->
+        <div id="comment-list">
+<!--            <p>-->
+<!--                <strong th:text="${comment.memberName}">작성자</strong>-->
+<!--                <small th:text="${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">작성일</small><br>-->
+<!--                <span th:text="${comment.content}">댓글내용</span>-->
+<!--            </p>-->
+<!--            <hr />-->
+        </div>
+
+        <!--댓글 작성-->
+        <div th:if="${sessionId != null}">
+            <form id="comment-form" th:action="@{/comment/add}" method="post">
+                <input type="hidden" name="postId" th:value="${postId}" />
+                <textarea name="content" placeholder="댓글을 입력하세요" rows="3" required></textarea>
+                <button type="submit" >등록</button>
+            </form>
+        </div>
+        <div th:if="${sessionId == null}">
+            <p>🔒 로그인 후 댓글을 작성할 수 있습니다.</p>
+        </div>
+
+
+        <!--댓글 리스트-->
+        <script th:inline="javascript">
+            fetch(`/comment/list/[[${postId}]]`)
+
+                .then(res=> {
+                    if (!res.ok) throw new Error('서버 응답 오류');
+                    return res.json();
+                })
+                .then(comments => {
+                    console.log(Array.isArray(comments));
+                    console.log('comments', comments);
+                    console.log(comments[0]);
+                    console.log(comments[0].memberName)
+                    const commentsDiv = document.getElementById("comment-list");
+                    for (const comment of comments){
+                        const wrapper = document.createElement("div");
+                        wrapper.classList.add("comment");
+
+                        const name = document.createElement("strong");
+                        name.innerText = comment.memberName;
+
+                        const date = document.createElement("small");
+                        date.innerText = comment.createdTime;
+
+                        const content = document.createElement("span");
+                        content.innerText = comment.content;
+
+                        wrapper.appendChild(name);
+                        wrapper.appendChild(date);
+                        wrapper.appendChild(document.createElement("br"));
+                        wrapper.appendChild(content);
+                        commentsDiv.appendChild(wrapper);
+                    }
+
+                })
+                .catch(error => {
+
+                    console.error('에러:', error);
+                });
+        </script>
+
+
+        <!--댓글작성-->
+        <script th:inline="javascript">
+            if ([[${sessionId}]] != null){
+                document.getElementById("comment-form").addEventListener('submit', async function(e){
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    try{
+                        const res = await fetch(this.action, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (res.ok){
+                            //댓글 입력창 초기화
+                            this.reset();
+
+                            const comment = await res.json();
+
+                            const commentsDiv = document.getElementById("comment-list");
+
+                            const wrapper = document.createElement("div");
+                            wrapper.classList.add("comment");
+
+                            const name = document.createElement("strong");
+                            name.innerText = comment.memberName;
+
+                            const date = document.createElement("small");
+                            date.innerText = comment.createdTime.toLocaleDateString();
+
+                            const content = document.createElement("span");
+                            content.innerText = comment.content;
+
+                            wrapper.appendChild(name);
+                            wrapper.appendChild(date);
+                            wrapper.appendChild(document.createElement("br"));
+                            wrapper.appendChild(content);
+                            commentsDiv.appendChild(wrapper);
+
+
+                        }else{
+                            alert("댓글작성 실패!");
+                        }
+                    }catch (err){
+                        alert("서버 통신 중 오류 발생");
+                        console.error(err);
+                    }
+                    this.reset();
+
+                })
+            }
+
+        </script>
+
+
+
+
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a class="back-button" th:href="@{/post/update/{postId}(postId=${postId})}">수정하기 -></a>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a class="back-button" th:href="@{/post/postList/1}">← 목록으로 돌아가기</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.toyProject.mapper.FileMapper">
+    <insert id="insertFile">
+        INSERT INTO TBL_FILE(FILE_ORIGINAL_NAME, FILE_SAVED_NAME, FILE_PATH, FILE_TYPE, REFERENCE_ID)
+        VALUES ( #{fileOriginalName},#{fileSavedName},#{filePath},#{fileType},#{referenceId} )
+    </insert>
+
+    <select id="selectPostFiles">
+        SELECT FILE_SAVED_NAME
+        FROM TBL_FILE
+        WHERE REFERENCE_ID = #{postId} AND FILE_TYPE = 'POST'
+    </select>
+
+    <delete id="deletePostFile">
+        DELETE FROM TBL_FILE
+        WHERE FILE_TYPE = 'POST' AND FILE_SAVED_NAME=#{fileSavedName}
+    </delete>
+
+</mapper>

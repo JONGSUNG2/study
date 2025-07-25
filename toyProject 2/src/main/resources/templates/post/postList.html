@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>게시글 목록</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h2>📌 게시글 목록</h2>
+    <div>
+        <!-- 게시글 목록 -->
+        <div>
+
+            <div >
+                <div >
+                    <table style="border-style: solid">
+                        <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>조회수</th>
+                            <th>작성일</th>
+                            <th>최근 수정일</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="postList, status:${postLists}">
+                            <td><a th:href="@{/post/postDetail/{postId}(postId=${postList.id}, from='list')}" th:text="${status.index + 1}" >1</a> </td>
+                            <td th:text="${postList.postTitle}">제목</td>
+                            <td th:text="${postList.memberName}">작성자</td>
+                            <td th:text="${postList.postReadCount}">0</td>
+                            <td th:text="${postList.postRegisterDate}">0</td>
+                            <td th:text="${postList.postUpdateDate}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+<!--                페이징 처리-->
+                <!-- 페이징 처리 -->
+                <nav aria-label="Page navigation" style="margin-top: 20px; display: flex; justify-content: center;">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/post/postList/{page}(page=${currentPage - 1})}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo; 이전</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                            th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/post/postList/{page}(page=${pageNum})}" th:text="${pageNum}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/post/postList/{page}(page=${currentPage + 1})}" aria-label="Next">
+                                <span aria-hidden="true">다음 &raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <!-- 사이드바 회원 정보-->
+<!--        <div>-->
+<!--            <div>-->
+<!--                <div>-->
+<!--                    <strong>로그인 사용자</strong>-->
+<!--                </div>-->
+                <a th:href="@{/}">마이 페이지</a>
+<!--                <a>➕ 새 글 작성</a>-->
+                <button th:onclick="|location.href='/post/postForm'|">
+                    <div>📝</div>
+                    게시글 작성
+                </button>
+<!--                <a>🚪 로그아웃</a>-->
+<!--            </div>-->
+<!--            <p>⚠️ 로그인 후 이용해주세요.</p>-->
+<!--            <a >로그인</a>-->
+
+<!--        </div>-->
+    </div>
+</div>
+</body>
+</html>

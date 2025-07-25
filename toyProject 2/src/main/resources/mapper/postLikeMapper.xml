@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.toyProject.mapper.PostLikeMapper">
+
+    <insert id="insertPostLike">
+        //좋아요 테이블 만들어야됨 근데 복합키로 하면 B-TREE쓰면서 시간복잡도 줄어든다고함
+        INSERT INTO TBL_POST_LIKE(
+                POST_ID, MEMBER_ID
+        )
+        VALUES ( #{postId}, #{memberId} )
+    </insert>
+
+    <select id="selectPostLike">
+        SELECT * FROM TBL_POST_LIKE
+        WHERE POST_ID = #{postId} AND MEMBER_ID = #{memberId}
+    </select>
+
+    <delete id="deletePostLike">
+        DELETE FROM TBL_POST_LIKE
+        WHERE POST_ID = #{postId} AND MEMBER_ID = #{memberId}
+    </delete>
+
+    <select id="countPostLike">
+        SELECT COUNT(*) FROM TBL_POST_LIKE
+        WHERE POST_ID = #{postId}
+    </select>
+
+</mapper>

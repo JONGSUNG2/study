@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.toyProject.mapper.MemberMapper">
+    <insert id="insertMember"
+            parameterType="com.project.toyProject.domain.vo.MemberVO"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO TBL_MEMBER (
+             MEMBER_LOGIN_ID, MEMBER_PASSWORD, MEMBER_NAME,
+            MEMBER_PHONE, MEMBER_BIRTH, MEMBER_EMAIL
+        )
+        VALUES (
+                    #{memberLoginId}, #{memberPassword}, #{memberName},
+                   #{memberPhone}, #{memberBirth}, #{memberEmail}
+               )
+    </insert>
+    <select id="selectLoginMemberPK">
+        SELECT ID FROM TBL_MEMBER
+        WHERE MEMBER_LOGIN_ID = #{memberLoginId} AND MEMBER_PASSWORD = #{memberPassword}
+    </select>
+    <select id="selectLoginMember">
+        SELECT * FROM TBL_MEMBER
+        WHERE ID = #{id}
+    </select>
+    <select id="selectMemberProfile">
+        SELECT
+            PF.PROFILE_ONE_LINE_BIO AS profileOneLineBio,
+            M.MEMBER_NAME AS memberName,
+            M.MEMBER_LOGIN_ID AS memberLoginId,
+            M.MEMBER_BIRTH AS memberBirth,
+            M.MEMBER_EMAIL AS memberEmail,
+            M.MEMBER_PHONE AS memberPhone,
+            F.FILE_TYPE AS fileType,
+            F.FILE_SAVED_NAME AS fileSavedName,
+            F.REFERENCE_ID AS referenceId
+        FROM TBL_PROFILE PF
+                 INNER JOIN TBL_MEMBER M ON M.ID = PF.MEMBER_ID
+                 LEFT JOIN TBL_FILE F ON F.REFERENCE_ID = PF.MEMBER_ID AND F.FILE_TYPE = 'PROFILE'
+        WHERE M.ID = #{memberId}
+    </select>
+
+    <select id="selectProfileUpdate">
+        SELECT
+            PF.PROFILE_ONE_LINE_BIO AS profileOneLineBio,
+            M.MEMBER_NAME AS memberName,
+            M.MEMBER_LOGIN_ID AS memberLoginId,
+            M.MEMBER_BIRTH AS memberBirth,
+            M.MEMBER_EMAIL AS memberEmail,
+            M.MEMBER_PHONE AS memberPhone,
+            F.FILE_TYPE AS fileType,
+            F.FILE_SAVED_NAME AS fileSavedName,
+            F.ID AS fileId,
+            PF.ID AS profileId
+        FROM TBL_PROFILE PF
+                 INNER JOIN TBL_MEMBER M ON M.ID = PF.MEMBER_ID
+                 LEFT JOIN TBL_FILE F ON F.REFERENCE_ID = PF.MEMBER_ID AND F.FILE_TYPE = 'PROFILE'
+        WHERE M.ID = #{memberId}
+    </select>
+
+    <update id="updateMember" >
+        update TBL_MEMBER
+        SET MEMBER_LOGIN_ID=#{memberVO.memberLoginId}, MEMBER_NAME=#{memberVO.memberName}, MEMBER_PHONE=#{memberVO.memberPhone}, MEMBER_EMAIL=#{memberVO.memberEmail}
+        WHERE ID = #{id}
+
+    </update>
+
+    <update id="updateProfile">
+        update TBL_PROFILE
+        SET PROFILE_ONE_LINE_BIO=#{profileVO.profileOneLineBio}
+        where ID = #{id}
+    </update>
+
+    <update id="updateFile">
+        update TBL_FILE
+        SET FILE_ORIGINAL_NAME=#{fileVO.fileOriginalName}, FILE_SAVED_NAME=#{fileVO.fileSavedName}, FILE_PATH=#{fileVO.filePath}
+        WHERE ID = #{id}
+    </update>
+
+</mapper>

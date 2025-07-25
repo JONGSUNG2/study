@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.toyProject.mapper.CommentMapper">
+
+    <insert id="insertComment">
+        INSERT INTO TBL_POST_COMMENT(
+                POST_ID, MEMBER_ID, CONTENT, CREATE_DATE
+        )VALUES (
+                 #{postId}, #{memberId}, #{content}, #{createDate}
+                    )
+    </insert>
+
+    <select id="selectCommentsByPostId">
+        SELECT M.MEMBER_NAME, C.CONTENT, C.CREATE_DATE AS createdTime
+        FROM TBL_POST_COMMENT C
+        JOIN TBL_MEMBER M ON M.ID = C.MEMBER_ID
+        WHERE C.POST_ID = #{postId}
+    </select>
+
+</mapper>
