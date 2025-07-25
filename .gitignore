@@ -1,0 +1,21 @@
+# 빌드 파일
+/target/
+*.class
+
+# DB 파일
+*.mv.db
+*.h2.db
+
+# IDE 설정
+.idea/
+*.iml
+
+# 로그 파일
+*.log
+
+# 운영체제 불필요 파일
+.DS_Store
+Thumbs.db
+
+# 환경 변수 설정
+.env
